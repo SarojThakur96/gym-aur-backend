@@ -1,0 +1,16 @@
+{
+  "name": "gym-aur-backend",
+  "version": "1.0.0",
+  "description": "for learning in depth backend with gym",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "javascript",
+    "backend",
+    "gym"
+  ],
+  "author": "saroj thakur",
+  "license": "ISC"
+}
