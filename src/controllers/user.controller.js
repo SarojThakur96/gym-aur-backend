@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import { User } from "../models/user.model.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
@@ -384,7 +385,61 @@ const getUserChannelProfile = asyncHandler(async (req, res) => {
   }
   return res
     .status(200)
-    .json(200, channel[0], "user channel fetched Successfully");
+    .json(
+      new ApiResponse(200, channel[0], "user channel fetched Successfully")
+    );
+});
+
+const getWatchHistory = asyncHandler(async (req, res) => {
+  const user = await User.aggregate([
+    {
+      $match: {
+        _id: mongoose.Types.ObjectId(req.user._id),
+      },
+    },
+    {
+      $lookup: {
+        from: "videos",
+        localField: "watchHistory",
+        foreignField: "_id",
+        as: "watchHistory",
+        pipeline: [
+          {
+            from: "users",
+            localField: "owner",
+            foreignField: "_id",
+            as: "owner",
+            pipeline: [
+              {
+                $project: {
+                  fullName: 1,
+                  username: 1,
+                  avatar: 1,
+                },
+              },
+            ],
+          },
+
+          {
+            $addFields: {
+              owner: {
+                $first: "$owner",
+              },
+            },
+          },
+        ],
+      },
+    },
+  ]);
+  return res
+    .status(200)
+    .json(
+      new ApiResponse(
+        200,
+        user[0].watchHistory,
+        "User watch history fetched Successfully"
+      )
+    );
 });
 
 export {
@@ -397,4 +452,6 @@ export {
   updateAccountDetails,
   updateUserAvatar,
   updateUserCover,
+  getUserChannelProfile,
+  getWatchHistory,
 };
